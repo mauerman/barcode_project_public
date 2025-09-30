@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Søg – Produktdatabase{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h1 class="page-title">Søg produkt</h1>
+
+    <form method="post" class="toolbar" style="gap:12px;">
+      <label for="product_id" style="display:flex; flex-direction:column; gap:6px;">
+        <span class="muted">product_id (valgfrit)</span>
+        <input class="input" type="text" id="product_id" name="product_id"
+               inputmode="numeric" pattern="\d*" placeholder="fx 1">
+      </label>
+
+      <label for="tags" style="display:flex; flex-direction:column; gap:6px;">
+        <span class="muted">tags (valgfrit, komma-separeret)</span>
+        <input class="input" type="text" id="tags" name="tags" placeholder="fx cola, 1.5l">
+      </label>
+
+      <button class="btn primary" type="submit">Søg</button>
+      <a class="btn" href="{{ url_for('products_list') }}">Alle produkter</a>
+      <a class="btn success" href="{{ url_for('products_create') }}">+ Nyt produkt</a>
+    </form>
+
+    {% if error %}
+      <p class="alert">{{ error }}</p>
+    {% endif %}
+
+    {% if product %}
+      <div class="media-grid">
+        <div class="panel">
+          <h3>Produkt</h3>
+          <table>
+            <tr><th>ID</th><td>{{ product.product_id }}</td></tr>
+            <tr><th>EAN</th><td>{{ product.product_ean }}</td></tr>
+            <tr><th>Navn</th><td>{{ product.product_name or '—' }}</td></tr>
+            <tr><th>Beskrivelse</th><td>{{ product.product_desc or '—' }}</td></tr>
+            {% if 'stock_qty' in product %}
+            <tr><th>Lager</th><td>{{ product.stock_qty }}</td></tr>
+            {% endif %}
+            {% if product.tags %}
+            <tr><th>Tags</th><td>
+              <div class="tags">
+                {% for t in product.tags %}<span class="tag">{{ t }}</span>{% endfor %}
+              </div>
+            </td></tr>
+            {% endif %}
+          </table>
+
+          <div class="toolbar" style="margin-top:12px;">
+            <a class="btn" href="{{ url_for('products_detail', product_id=product.product_id) }}">Vis</a>
+            <a class="btn" href="{{ url_for('products_edit', product_id=product.product_id) }}">Rediger</a>
+            <form class="inline" method="post" action="{{ url_for('products_qty_add', product_id=product.product_id) }}">
+              <input type="hidden" name="delta" value="1">
+              <button class="btn" type="submit">+1</button>
+            </form>
+            <form class="inline" method="post" action="{{ url_for('products_qty_add', product_id=product.product_id) }}">
+              <input type="hidden" name="delta" value="-1">
+              <button class="btn" type="submit">-1</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Stregkode</h3>
+          {% if image_url %}
+            <img class="media-img" src="{{ image_url }}" alt="Stregkode for {{ product.product_ean }}">
+            <div class="muted" style="margin-top:6px;">EAN {{ product.product_ean }}</div>
+          {% else %}
+            <div class="muted">Ingen lokal stregkode fundet i <code>static/barcodes/</code>.</div>
+          {% endif %}
+        </div>
+
+        {% if product.product_image %}
+          <div class="panel">
+            <h3>Produktfoto</h3>
+            <img class="media-img" src="{{ url_for('static', filename=product.product_image) }}"
+                 alt="Produktfoto for {{ product.product_name or ('#' ~ product.product_id) }}">
+          </div>
+        {% endif %}
+      </div>
+    {% elif product is not none %}
+      <p class="alert">Intet produkt fundet.</p>
+    {% endif %}
+  </section>
+{% endblock %}

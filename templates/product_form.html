@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Rediger' if mode == 'edit' else 'Nyt' }} produkt – Produktdatabase{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h1 class="page-title">{{ 'Rediger' if mode == 'edit' else 'Nyt' }} produkt</h1>
+
+    <div class="toolbar">
+      <a class="btn" href="{{ url_for('products_list') }}">Tilbage til liste</a>
+      <a class="btn" href="{{ url_for('search') }}">Søg</a>
+      <a class="btn" href="{{ url_for('products_scan') }}">📷 Scan stregkode</a>
+      {% if product and product.product_ean %}
+        <a class="btn" href="{{ url_for('products_photo_new', ean=product.product_ean) }}">📸 Tag produktfoto</a>
+      {% else %}
+        <span class="muted">📸 Tag produktfoto (kræver EAN)</span>
+      {% endif %}
+    </div>
+
+    {% if error %}
+      <p class="alert">{{ error }}</p>
+    {% endif %}
+
+    <form method="post">
+      <label>EAN<br>
+        <input class="input" name="product_ean"
+               value="{{ (product.product_ean if product else '') }}"
+               inputmode="numeric" pattern="[0-9]{12,13}" placeholder="fx 5701234567890">
+      </label>
+
+      <label style="margin-top:10px;">Navn<br>
+        <input class="input" name="product_name"
+               value="{{ (product.product_name if product else '') }}"
+               placeholder="Produktnavn">
+      </label>
+
+      <label style="margin-top:10px;">Beskrivelse<br>
+        <textarea class="input" name="product_desc" rows="5"
+                  placeholder="Kort beskrivelse">{{ (product.product_desc if product else '') }}</textarea>
+      </label>
+      <label style="margin-top:10px;">Tags (komma-separeret)<br>
+        <input class="input" name="tags"
+          value="{% if product and product.tags %}{{ product.tags|join(', ') }}{% else %}{{ product.tags or '' }}{% endif %}"
+          placeholder="fx sodavand, 1.5l, cola">
+      </label>
+
+      <!-- Skjult felt til billedsti (sættes når du tager foto) -->
+      <input type="hidden" name="product_image" value="{{ (product.product_image if product else '') }}">
+
+      {% if product and product.product_image %}
+        <div class="divider"></div>
+        <div class="panel">
+          <h3>Forhåndsvisning foto</h3>
+          <img class="media-img" src="{{ url_for('static', filename=product.product_image) }}"
+               alt="Produktfoto for {{ product.product_name or ('#' ~ product.product_id) }}">
+        </div>
+      {% endif %}
+
+      <div class="toolbar" style="margin-top:14px;">
+        <button class="btn primary" type="submit">
+          {{ 'Gem ændringer' if mode == 'edit' else 'Opret' }}
+        </button>
+      </div>
+    </form>
+  </section>
+{% endblock %}

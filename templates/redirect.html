@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Sender videre…{% endblock %}
+
+{# Meta-refresh for hurtig redirect #}
+{% block head %}
+  <meta http-equiv="refresh" content="0; url={{ target|e }}">
+{% endblock %}
+
+{% block content %}
+  <section class="card" style="text-align:center;">
+    <h1 class="page-title">Sender videre…</h1>
+    <p class="muted">
+      Hvis det ikke sker automatisk, 
+      <a class="btn" href="{{ target }}">klik her</a>.
+    </p>
+  </section>
+{% endblock %}

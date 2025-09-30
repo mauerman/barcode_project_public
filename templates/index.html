@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Forside – Produktdatabase{% endblock %}
+{% block content %}
+  <section class="card">
+    <h1 class="page-title">Velkommen</h1>
+    <p class="muted">Søg, opret eller scan produkter direkte herfra.</p>
+
+    <div class="toolbar">
+      <a class="btn primary" href="{{ url_for('search') }}">Søg efter produkt</a>
+      <a class="btn" href="{{ url_for('products_list') }}">Alle produkter</a>
+      <a class="btn success" href="{{ url_for('products_create') }}">+ Nyt produkt</a>
+      <a class="btn" href="{{ url_for('products_scan_increment') }}">📷 Scan +1</a>
+    </div>
+  </section>
+{% endblock %}

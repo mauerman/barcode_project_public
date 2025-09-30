@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Produktdatabase{% endblock %}</title>
+
+  <!-- Dit stylesheet (sti: main/static/styles/style.css) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+
+  <!-- Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  {% block head %}{% endblock %}
+</head>
+<body class="page">
+  <header class="site-header">
+    <div class="container header-inner">
+      <h1 class="logo"><a href="{{ url_for('index') }}">Min Produktdatabase</a></h1>
+      <nav class="nav">
+        <a class="btn ghost" href="{{ url_for('index') }}">Forside</a>
+        <a class="btn ghost" href="{{ url_for('search') }}">Søg</a>
+        <a class="btn primary" href="{{ url_for('products_list') }}">Alle produkter</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <small>&copy; {{ 2025 }} – Lokalt demo-setup</small>
+    </div>
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

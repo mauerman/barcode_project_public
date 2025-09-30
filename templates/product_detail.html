@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Produkt #{{ product.product_id if product else '' }} – Produktdatabase{% endblock %}
+
+{% block content %}
+  <h1 class="page-title">Produktdetaljer</h1>
+
+  <div class="toolbar">
+    <a class="btn" href="{{ url_for('products_list') }}">Tilbage til liste</a>
+    {% if product %}
+      <a class="btn" href="{{ url_for('products_edit', product_id=product.product_id) }}">Rediger</a>
+      <form class="inline" method="post" action="{{ url_for('products_delete', product_id=product.product_id) }}"
+            onsubmit="return confirm('Slet produkt #{{ product.product_id }}?');">
+        <button class="btn danger" type="submit">Slet</button>
+      </form>
+      <a class="btn" href="{{ url_for('products_photo_edit', product_id=product.product_id) }}">📸 Tag/Opdatér foto</a>
+      <a class="btn" href="{{ url_for('products_scan_increment') }}">📷 Scan +1</a>
+    {% endif %}
+    <a class="btn" href="{{ url_for('search') }}">Søg</a>
+  </div>
+
+  {% if error %}
+    <p class="alert">{{ error }}</p>
+  {% endif %}
+
+  {% if not product %}
+    <p>Produkt ikke fundet.</p>
+  {% else %}
+    <div class="card">
+      <div class="kv"><span>ID</span><strong>{{ product.product_id }}</strong></div>
+      <div class="kv"><span>EAN</span><strong>{{ product.product_ean }}</strong></div>
+      <div class="kv"><span>Navn</span><strong>{{ product.product_name }}</strong></div>
+      <div class="kv"><span>Beskrivelse</span><div>{{ product.product_desc or '—' }}</div></div>
+
+      {# --- NYT: Tags (chips) --- #}
+      <div class="kv">
+        <span>Tags</span>
+        {% if product.tags and product.tags|length %}
+          <div class="tags">
+            {% for t in product.tags %}
+              <span class="tag">{{ t }}</span>
+            {% endfor %}
+          </div>
+        {% else %}
+          <span class="muted">—</span>
+        {% endif %}
+      </div>
+
+      <div class="divider"></div>
+      <div class="kv">
+        <span>Lager</span>
+        <div class="qty-row">
+          <strong class="qty">{{ product.stock_qty }}</strong>
+          <form class="inline" method="post" action="{{ url_for('products_qty_add', product_id=product.product_id) }}">
+            <input type="hidden" name="delta" value="1">
+            <button class="btn primary" type="submit">+1</button>
+          </form>
+          <form class="inline" method="post" action="{{ url_for('products_qty_add', product_id=product.product_id) }}">
+            <input type="hidden" name="delta" value="-1">
+            <button class="btn" type="submit">-1</button>
+          </form>
+          <form class="inline" method="post" action="{{ url_for('products_qty_set', product_id=product.product_id) }}">
+            <input class="input sm" type="number" name="qty" min="0" placeholder="Sæt antal">
+            <button class="btn" type="submit">Gem</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="media-grid">
+        {% if product.product_image %}
+          <div class="panel">
+            <h3>Produktfoto</h3>
+            <img class="media-img" src="{{ url_for('static', filename=product.product_image) }}"
+                 alt="Produktfoto for {{ product.product_name or ('#' ~ product.product_id) }}">
+          </div>
+        {% endif %}
+        {% if image_url %}
+          <div class="panel">
+            <h3>Stregkode</h3>
+            <img class="media-img" src="{{ image_url }}" alt="Stregkode {{ product.product_ean }}">
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Alle produkter – Produktdatabase{% endblock %}
+
+{% block content %}
+  <h1 class="page-title">Alle produkter</h1>
+
+  <div class="toolbar">
+    <a class="btn" href="{{ url_for('index') }}">Forside</a>
+    <a class="btn" href="{{ url_for('search') }}">Søg</a>
+    <a class="btn success" href="{{ url_for('products_create') }}">+ Nyt produkt</a>
+    <a class="btn" href="{{ url_for('products_scan_increment') }}">📷 Scan +1</a>
+  </div>
+
+  {% if error %}
+    <p class="alert">{{ error }}</p>
+  {% endif %}
+
+  {% if rows and rows|length %}
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>EAN</th>
+            <th>Navn</th>
+            <th>Lager</th>
+            <th>Beskrivelse</th>
+            <th>Handlinger</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rows %}
+          <tr>
+            <td>{{ r.product_id }}</td>
+            <td>{{ r.product_ean }}</td>
+            <td>{{ r.product_name }}</td>
+            <td class="nowrap">
+              <strong>{{ r.stock_qty }}</strong>
+              <form class="inline" method="post" action="{{ url_for('products_qty_add', product_id=r.product_id) }}">
+                <input type="hidden" name="delta" value="1">
+                <button class="btn xs primary" type="submit">+1</button>
+              </form>
+              <form class="inline" method="post" action="{{ url_for('products_qty_add', product_id=r.product_id) }}">
+                <input type="hidden" name="delta" value="-1">
+                <button class="btn xs" type="submit">-1</button>
+              </form>
+            </td>
+            <td>{{ r.product_desc }}</td>
+            <td class="nowrap">
+              <a class="btn xs" href="{{ url_for('products_detail', product_id=r.product_id) }}">Vis</a>
+              <a class="btn xs" href="{{ url_for('products_edit', product_id=r.product_id) }}">Rediger</a>
+              <form class="inline" method="post" action="{{ url_for('products_delete', product_id=r.product_id) }}"
+                    onsubmit="return confirm('Slet produkt #{{ r.product_id }}?');">
+                <button class="btn xs danger" type="submit">Slet</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="muted">Ingen produkter endnu.</p>
+  {% endif %}
+{% endblock %}
