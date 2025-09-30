@@ -3,14 +3,13 @@ import psycopg2
 import psycopg2.extras
 from flask import Flask, render_template, request, url_for
 import time
-import cv2
-from zxingcpp import read_barcodes
 from barcode import EAN13
 from barcode.writer import ImageWriter
 from dotenv import load_dotenv
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
+ENABLE_CAMERA = os.getenv("ENABLE_CAMERA", "0") == "1"
 BASE_DIR = os.path.dirname(__file__)
 load_dotenv(os.path.join(BASE_DIR, 'my_info.env'))
 
@@ -54,7 +53,12 @@ def parse_tags(raw: str | None) -> list[str] | None:
     return list(dict.fromkeys(tags))
 
 
-def read_barcode_from_camera(camera_adr=0):
+def read_barcode_from_camera():
+    if not ENABLE_CAMERA:
+        raise RuntimeError("Camera is disabled in this environment")
+
+    import cv2
+    from zxingcpp import read_barcodes
     """
     Scanner én stregkode via webcam og returnerer teksten (EAN) som str.
     Lukker kamera og vinduer, når en kode er fundet eller 'q' trykkes.
@@ -378,6 +382,8 @@ def products_qty_set(product_id):
 
 @app.route('/products/scan-increment', methods=['GET'])
 def products_scan_increment():
+    if not ENABLE_CAMERA:
+        return render_template('redirect.html', target=url_for('products_list'))
     """
     Scanner en stregkode og lægger delta til lageret.
     Hvis produktet ikke findes, redirecter til 'Nyt produkt' med EAN forudfyldt.
@@ -579,6 +585,8 @@ def products_create():
 
 @app.route('/products/new/scan', methods=['GET'])
 def products_scan():
+    if not ENABLE_CAMERA:
+        return render_template('redirect.html', target=url_for('products_list'))    
     ean = read_barcode_from_camera()
     if not ean:
         return render_template('product_form.html', mode='create',
